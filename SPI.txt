@@ -1,0 +1,24 @@
+Used louisthiery.com/spi-python-hardware-spi-for-raspi/
+
+
+ran apt-get install python-dev
+
+**modded spi.c
+	SPI CPOL = 0x02
+	SPI_LSB_FIRST 0x08
+	Together they form 0x0A, or mode 
+	mode = 0x03;
+
+Clock polarity is working and we were able to change that.
+
+Now the issue is in the LSB.  We're sending it backwards to what the RPi needs.
+
+	order = 0x00;
+        ret = ioctl(fd, SPI_IOC_WR_LSB_FIRST, &order);
+        if (ret == -1)
+                pabort("SPI Write LSB failed");
+
+        ret = ioctl(fd, SPI_IOC_RD_LSB_FIRST, &order);
+        if (ret == -1)
+                pabort("SPI WRite LSB Failed");
+ Is sucesful, but if we change the value of order to anything but 0x00, we get a failure.  set bit
